@@ -1,12 +1,12 @@
 % filters data for analysis, ICA, and Sven's cleaning
 
 % TEMP: run filtering on 1 file to try out different ICAs
+P = prepParameters();
+Path = 'D:\Data\Raw\P15\Sleep\NightPre\EEG';
+File = 'P15_night1.set';
+Destination = 'D:\Data\ICATEST';
 
-Path = 'F:\Data\Raw\P15\Sleep\NightPre\EEG';
-
-Destination = 'F:\Data\ICATEST';
-
-
+OldEEG = pop_loadset(fullfile(Path, File));
 
 Parameters = struct();
 
@@ -30,7 +30,7 @@ Destination_Formats = {'ICA', 'Wake'}; % chooses which filtering to do
 
 Indx_D = 9;
 
-for Indx_DF = 1:numel(Destination_Formats)
+for Indx_DF = 2%1:numel(Destination_Formats)
     Destination_Format = Destination_Formats{Indx_DF};
     
     % set selected parameters
