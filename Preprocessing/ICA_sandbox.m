@@ -59,7 +59,7 @@ for Indx_S = 1:numel(Stages)
     Points = linspace(0, size(Stage.data, 2)-Keep*60*Stage.srate, 3); % first, middle and last points of data
 
     for Indx_P = 1:numel(Points)
-        Stage_3m = pop_select(EEG, 'point', [Points(Indx_P), Points(Indx_P)+Keep*60*Stage.srate]);
+        Stage_3m = pop_select(Stage, 'point', [Points(Indx_P), Points(Indx_P)+Keep*60*Stage.srate]);
 
         Filename_Destination = [Names{Indx_S}, '_', num2str(Keep), 'min_', Point_Names{Indx_P}, '.set'];
         pop_saveset(Stage_3m, 'filename', Filename_Destination,  'filepath', Path, ...
@@ -79,7 +79,7 @@ Point_Names = {'Start', 'Middle', 'End'};
 IC_Brain_Threshold = 0.1; % %confidence of automatic IC classifier in determining a brain artifact
 IC_Other_Threshold = 0.6; % %confidence of automatic IC classifier in determining a brain artifact
 
-IC_Max = 60; % limit of components automatically considered for elimination
+IC_Max = 35; % limit of components automatically considered for elimination
 
 for Indx_S = 1:numel(Stages)
     for Indx_P = 1:numel(Points)
