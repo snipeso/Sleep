@@ -18,28 +18,28 @@ SleepEnds = SleepStarts + [8 4 9 1];
 SleepMidpoint = 2;
 StartPressure = 3;
 
-figure('units','centimeters','position',[0 0 20, 10])
+figure('units','centimeters','position',[0 0 40, 10])
 
 hold on
 % background information
-plot2process(SleepStarts, SleepEnds, '', SleepMidpoint, StartPressure, Format);
+plot2process(SleepStarts, SleepEnds, SleepMidpoint, StartPressure,  'labels', Format);
 
 % sleep pressure coloring
 Format.Color = 'y';
-plot2process(SleepStarts, SleepEnds, 'pressure', SleepMidpoint, StartPressure, Format);
+plot2process(SleepStarts, SleepEnds, SleepMidpoint, StartPressure,  'pressure', Format);
 
 % circadian cycle
 Format.Color = 'k';
-plot2process(SleepStarts, SleepEnds, 'circadian', SleepMidpoint, StartPressure, Format);
+plot2process(SleepStarts, SleepEnds, SleepMidpoint, StartPressure, 'circadian',  Format);
 
 % homeostatic curve
 Format.Color = 'b';
-plot2process(SleepStarts, SleepEnds, 'homeostatic', SleepMidpoint, StartPressure, Format);
+plot2process(SleepStarts, SleepEnds, SleepMidpoint, StartPressure, 'homeostatic',  Format);
 
 
 % second homeostatic curve
 StartPressure = 3.5;
 Format.Color = 'r';
-plot2process(SleepStarts, SleepEnds, 'homeostatic', SleepMidpoint, StartPressure, Format);
+plot2process(SleepStarts, SleepEnds, SleepMidpoint, StartPressure,  'homeostatic', Format);
 
 legend
