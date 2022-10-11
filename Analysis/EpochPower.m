@@ -121,7 +121,8 @@ for Indx_F = 1:numel(Files)
 
     if all(isnan(Power(:)))
         warning(['no data left in ', Filename_Destination])
-        continue
+        Freqs = [];
+        Power = [];
     end
 
     % save TODO parsave
