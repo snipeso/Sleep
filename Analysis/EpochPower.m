@@ -1,5 +1,7 @@
 % Calculate power for each 20s window
-
+clear
+clc
+close all
 
 
 Core = 'E:\Data\Preprocessed\';
@@ -9,10 +11,14 @@ Source_Cuts = 'E:\Data\Outliers\Sleep';
 
 Destination = 'E:\Data\Final\EEG\Unlocked';
 
+Refresh = false;
+
 WelchWindow = 4; % in seconds
 Overlap = 0.5;
 
-Destination = fullfile(Destination, ['window', num2str(WelchWindow), 's_full']);
+FinalFreqs = 513; % to pre-allocate;
+
+Destination = fullfile(Destination, ['window', num2str(WelchWindow), 's_full'], 'Sleep');
 
 BadChannel_Threshold = .33; % proportion of bad epochs before it gets counted as a bad channel
 BadWindow_Threshold = .1; % proportion of bad channels before its counted as a bad window
@@ -31,6 +37,12 @@ for Indx_F = 1:numel(Files)
     Filename_Source = Files{Indx_F};
     Filename_Cuts = replace(Filename_Source, Source_Tag, 'Cutting_artndxn');
     Filename_Destination = replace(Filename_Source, Source_Tag, 'Welch');
+
+    % todo skip if refresh 
+    if exist(fullfile(Destination, Filename_Destination), 'file') && ~Refresh
+        disp(['Skipping ', Filename_Source])
+        continue
+    end
 
     % load info on whether to keep epochs or not
     if ~exist(fullfile(Source_Cuts, Filename_Cuts), 'file')
@@ -58,7 +70,7 @@ for Indx_F = 1:numel(Files)
     artndxn(badchans, :) = 0;
 
     % bad epochs
-    Holes = findHoles(artndxn, EEG.chanlocs, EdgeChannels); % epochs where there are no adjacent electrodes
+    Holes = findHoles(artndxn, EEG.chanlocs, labels2indexes(EdgeChannels, EEG.chanlocs)); % epochs where there are no adjacent electrodes
     BadWindows = sum(artndxn==0)./size(artndxn, 1) >=BadWindow_Threshold;
 
 
@@ -70,17 +82,17 @@ for Indx_F = 1:numel(Files)
     Starts = 1:fs*scoringlen:size(EEG.data, 2);
     Ends = Starts+fs*scoringlen-1;
 
-    Power = nan(size(artndxn));
+    Power = nan(size(artndxn, 1), size(artndxn, 2), FinalFreqs);
     for Indx_E = 1:size(artndxn, 2)
-
-        ShortEEG = pop_select(EEG, 'point', [Starts(Indx_E), Ends(Indx_E)]);
-
         KeepCh = artndxn(:, Indx_E);
 
         % skip if all nans
-        if ~any(KeepCh)
+        if ~any(KeepCh==1)
             continue
         end
+
+        ShortEEG = pop_select(EEG, 'point', [Starts(Indx_E), Ends(Indx_E)]);
+
 
         % remove bad channels/timepoints for epoch
         ShortEEG = pop_select(ShortEEG, 'channel', find(KeepCh));
@@ -99,11 +111,11 @@ for Indx_F = 1:numel(Files)
         P = P';
         Freqs = Freqs';
         
-        Power(:, Indx_E, 1:numel(Freqs)) = P;
+        Power(:, Indx_E, :) = P;
     end
     Chanlocs = EEG.chanlocs;
 
-    % save
+    % save TODO parsave
     save(fullfile(Destination, Filename_Destination), 'Power', 'fs', 'Chanlocs', 'Freqs', 'visnum')
 
 end
