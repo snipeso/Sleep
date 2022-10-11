@@ -65,13 +65,17 @@ for Indx_F = 1:numel(Files)
 
     % bad channels
     BadEpochs = sum(artndxn==0, 2, 'omitnan');
-    badchans = find(BadEpochs./size(artndxn, 2) >= BadChannel_Threshold)';
+    badchans = BadEpochs./size(artndxn, 2) >= BadChannel_Threshold;
 
     artndxn(badchans, :) = 0;
 
     % bad epochs
-    Holes = findHoles(artndxn, EEG.chanlocs, labels2indexes(EdgeChannels, EEG.chanlocs)); % epochs where there are no adjacent electrodes
-    BadWindows = sum(artndxn==0)./size(artndxn, 1) >=BadWindow_Threshold;
+    Edges =  labels2indexes(EdgeChannels, EEG.chanlocs);
+    Holes = findHoles(artndxn, EEG.chanlocs, Edges); % epochs where there are no adjacent electrodes
+    
+    Main = artndxn;
+    Main(Edges, :) = [];
+    BadWindows = sum(Main==0)./size(Main, 1) >=BadWindow_Threshold;
 
 
     % set to nan holes so they're not counted in BadSnippets
@@ -114,6 +118,11 @@ for Indx_F = 1:numel(Files)
         Power(:, Indx_E, :) = P;
     end
     Chanlocs = EEG.chanlocs;
+
+    if all(isnan(Power(:)))
+        warning(['no data left in ', Filename_Destination])
+        continue
+    end
 
     % save TODO parsave
     save(fullfile(Destination, Filename_Destination), 'Power', 'fs', 'Chanlocs', 'Freqs', 'visnum')
