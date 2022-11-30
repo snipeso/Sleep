@@ -1,10 +1,10 @@
-function saveFig(Title, Destination, Format)
+function saveFig(Title, Destination, PlotProps)
 % little script for saving figures, so I can change things all together if
 % I want
 
 
 % set(gcf, 'Color', 'none');
-set(gcf, 'InvertHardcopy', 'off', 'Color', Format.Colors.Background)
+set(gcf, 'InvertHardcopy', 'off', 'Color', PlotProps.Color.Background)
 
 saveas(gcf, fullfile(Destination, [Title, '.svg']));
 try

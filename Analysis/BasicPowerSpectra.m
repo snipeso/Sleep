@@ -11,12 +11,14 @@ Paths = P.Paths;
 PlotProps = P.Manuscript;
 
 Participants = P.Participants;
+TitleTag = 'SimpleSpectra';
 Night = 'Baseline';
 Stages = [-1 -2 -3 1]; % NREM1, NREM2, NREM3, REM
 Tasks = {'Fixation', 'Standing', 'Game'};
 Sessions = {'BaselinePre', 'BaselinePre', 'Baseline'};
 ChLabels = {'Front', 'Center', 'Back'};
 
+Results = 'E:\Data\Results\Sleep';
 StageLabels = {'NREM1', 'NREM2', 'NREM3', 'REM', 'Wake (eyes open)', 'Wake (eyes closed)', 'Game'};
 
 load('Keep.mat', 'Keep')
@@ -61,18 +63,20 @@ for Indx_P = 1:numel(Participants)
     disp(['Finished ', Participants{Indx_P}])
 end
 
+Chanlocs = Chanlocs(KeepChannels);
 
 zData = zScoreData(AllPower, 'last');
-chData = meanChData(zData, Chanlocs, Channels.All, 4);
-bData = squeeze(bandData(chData, Freqs, Bands, 'last'));
+chData = meanChData(zData, Chanlocs, P.Channels.preROI, 3);
+bData = squeeze(bandData(chData, Freqs, P.Bands, 'last'));
 
-raw_chData = meanChData(SWA_first, Chanlocs, Channels.All, 4);
-raw_bData = squeeze(bandData(raw_chData, Freqs, Bands, 'last'));
+raw_chData = meanChData(AllPower, Chanlocs, P.Channels.preROI, 3);
+raw_bData = squeeze(bandData(raw_chData, Freqs, P.Bands, 'last'));
 
 
 nStages = size(bData, 2);
 
-
+ChLabels = fieldnames(P.Channels.preROI);
+nROI = numel(ChLabels);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Plots
@@ -80,53 +84,167 @@ nStages = size(bData, 2);
 
 %% plot each stage for each participant, log-log
 
-Grid = [3, nStages];
-xLog = true;
-xLims = [1 40];
+Grid = [nROI, nStages];
+xLims = [1 30];
+YLims = [-4 7];
 
-figure('Units','normalized','Position',[0 0 .8 1])
-for Indx_Ch = 1:3
+figure('Units','normalized','OuterPosition',[0 0 1 1])
+for Indx_Ch = 1:nROI
     for Indx_S = 1:nStages
         A = subfigure([], Grid, [Indx_Ch, Indx_S], [], true, ...
             PlotProps.Indexes.Letters{Indx_S}, PlotProps);
         Data = log(squeeze(raw_chData(:, Indx_S, Indx_Ch, :)));
-        plotSpectrumMountains(Data, Freqs, xLog, xLims, PlotProps, P.Labels)
+        plotAngelHair(log(Freqs), Data, PlotProps.Color.Participants, {}, PlotProps)
         title([StageLabels{Indx_S}, ' ', ChLabels{Indx_Ch}])
+         set(gca, 'XGrid', 'on', 'YGrid', 'on', 'XTick', log(P.Labels.logBands))
+        xlim(log(xLims))
+        ylim(YLims)
+            xticks(log(P.Labels.logBands))
+    xticklabels(P.Labels.logBands)
     end
 end
+
+saveFig(strjoin({TitleTag, 'individuals', 'raw'}, '_'), Results, PlotProps)
 
 
 %% idem but z-scored
 
-figure('Units','normalized','Position',[0 0 .8 1])
+Grid = [3, nStages];
+xLog = true;
+xLims = [1 30];
+BL_Indx = 1;
+
+figure('Units','normalized','Position',[0 0 1 .8])
 for Indx_Ch = 1:3
     for Indx_S = 1:nStages
         A = subfigure([], Grid, [Indx_Ch, Indx_S], [], true, ...
             PlotProps.Indexes.Letters{Indx_S}, PlotProps);
-        Data = log(squeeze(chData(:, Indx_S, Indx_Ch, :)));
-        plotSpectrumMountains(Data, Freqs, xLog, xLims, PlotProps, P.Labels)
+        Data = squeeze(chData(:, Indx_S, Indx_Ch, :));
+        plotAngelHair(Freqs, Data, PlotProps.Color.Participants, {}, PlotProps)
         title([StageLabels{Indx_S}, ' ', ChLabels{Indx_Ch}])
+        xlim(xLims)
     end
 end
+
+saveFig(strjoin({TitleTag, 'individuals', 'z-scored'}, '_'), Results, PlotProps)
+
 
 %% plot all overlapping
 
 Grid = [1 3];
-BL_Indx = 5;
+BL_Indx = 1;
+% yLim = [-1.2, 4];
+yLim = [-4 6];
 
 
-figure('Units','normalized','Position',[0 0 .8 1])
+Colors = [flip(getColors([1 3], '', 'blue')); getColors(1, '', 'green'); getColors([1, 2], '', 'red'); getColors(1, '', 'yellow')];
+
+figure('Units','normalized','Position',[0 0 1 .5])
 for Indx_Ch = 1:3
-    A = subfigure([], Grid, [Indx_Ch, Indx_S], [], true, ...
-        PlotProps.Indexes.Letters{Indx_S}, PlotProps);
-    Data = squeeze(chData(:, :, Indx_Ch, :));
-    spectrumDiff(Data, Freqs, BL_Indx, [], getColors([1 size(Data, 2)]), xLog, PlotProps, [], P.Labels);
+    A = subfigure([], Grid, [1, Indx_Ch], [], true, ...
+        PlotProps.Indexes.Letters{Indx_Ch}, PlotProps);
+    Data = log(squeeze(raw_chData(:, :, Indx_Ch, :)));
+    spectrumDiff(Data, Freqs, BL_Indx, StageLabels, Colors, xLog, PlotProps, P.StatsP, P.Labels);
     title([ChLabels{Indx_Ch}])
+    ylim(yLim)
+    if Indx_Ch>1
+        legend off
+        ylabel('')
+    end
 end
+
+saveFig(strjoin({TitleTag, 'AllSpectra', 'raw'}, '_'), Results, PlotProps)
+
 
 
 %% idem z-scored
 
 
+Grid = [1 3];
+BL_Indx = 1;
+yLim = [-1.2, 4];
+
+
+Colors = [flip(getColors([1 3], '', 'blue')); getColors(1, '', 'green'); getColors([1, 2], '', 'red'); getColors(1, '', 'yellow')];
+
+figure('Units','normalized','Position',[0 0 1 .5])
+for Indx_Ch = 1:3
+    A = subfigure([], Grid, [1, Indx_Ch], [], true, ...
+        PlotProps.Indexes.Letters{Indx_Ch}, PlotProps);
+    Data = squeeze(chData(:, :, Indx_Ch, :));
+    spectrumDiff(Data, Freqs, BL_Indx, StageLabels, Colors, xLog, PlotProps, P.StatsP, P.Labels);
+    title([ChLabels{Indx_Ch}])
+    ylim(yLim)
+    if Indx_Ch>1
+        legend off
+        ylabel('')
+    end
+end
+
+saveFig(strjoin({TitleTag, 'AllSpectra', 'zscored'}, '_'), Results, PlotProps)
+
+
+
+%% official figure
+
+StageLabels = {'NREM1', 'NREM2', 'NREM3', 'REM', 'Wake (eyes open)', 'Wake', 'Game'};
+
+
+Grid = [1 3];
+BL_Indx = 1;
+% yLim = [-1.2, 4];
+yLim = [-4 7];
+
+Colors = [getColors(1, '', 'red'); flip(getColors([1 3], '', 'blue')); getColors(1, '', 'yellow')];
+
+figure('Units','normalized','Position',[0 0 .5 .35])
+for Indx_Ch = 1:3
+    A = subfigure([], Grid, [1, Indx_Ch], [], true, ...
+        PlotProps.Indexes.Letters{Indx_Ch}, PlotProps);
+    Data = log(squeeze(raw_chData(:, [6, 1 2 3 4], Indx_Ch, :)));
+    spectrumDiff(Data, Freqs, BL_Indx, StageLabels([6, 1 2 3 4]), Colors, xLog, PlotProps, P.StatsP, P.Labels);
+    title([ChLabels{Indx_Ch}])
+    ylim(yLim)
+    if Indx_Ch>1
+        legend off
+        ylabel('')
+    else
+         set(legend, 'ItemTokenSize', [10 10])
+         ylabel('log power')
+    end
+end
+
+saveFig(strjoin({TitleTag, 'SleepSpectra', 'raw'}, '_'), Results, PlotProps)
+
+
+%%
+StageLabels = {'NREM1', 'NREM2', 'NREM3', 'REM', 'Wake (eyes open)', 'Wake', 'Game'};
+
+
+Grid = [1 3];
+BL_Indx = 1;
+yLim = [-1.2, 5];
+% yLim = [-4 7];
+
+Colors = [getColors(1, '', 'red'); flip(getColors([1 3], '', 'blue')); getColors(1, '', 'yellow')];
+
+figure('Units','normalized','Position',[0 0 .55 .35])
+for Indx_Ch = 1:3
+    A = subfigure([], Grid, [1, Indx_Ch], [], true, ...
+        PlotProps.Indexes.Letters{Indx_Ch}, PlotProps);
+    Data = squeeze(chData(:, [6, 1 2 3 4], Indx_Ch, :));
+    spectrumDiff(Data, Freqs, BL_Indx, StageLabels([6, 1 2 3 4]), Colors, xLog, PlotProps, P.StatsP, P.Labels);
+    title([ChLabels{Indx_Ch}])
+    ylim(yLim)
+    if Indx_Ch>1
+        legend off
+        ylabel('')
+    else
+         set(legend, 'ItemTokenSize', [10 10])
+         ylabel('log power')
+    end
+end
+
+saveFig(strjoin({TitleTag, 'SleepSpectra', 'zscored'}, '_'), Results, PlotProps)
 
 
