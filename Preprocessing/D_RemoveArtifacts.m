@@ -8,11 +8,11 @@ P = prepParameters();
 Paths = P.Paths;
 
 Core = 'E:\Data\Preprocessed\';
-Source = fullfile(Paths.Preprocessed, 'Power\MAT\Sleep');
+Source = fullfile(Core, 'Power\MAT\Sleep');
 Source_Tag = 'Power';
 Source_Cuts = 'E:\Data\Outliers\Sleep';
 
-Destination = fullfile(Paths.Preprocessed, 'Clean\Waves\Sleep');
+Destination = fullfile(Core, 'Clean\Waves\Sleep');
 
 Refresh = false;
 
@@ -31,6 +31,12 @@ Files = getContent(Source);
 
 for Indx_F = 1:numel(Files)
     Filename_Source = Files{Indx_F};
+
+    if ~contains(Filename_Source, '15')
+        disp(['skipping temp ', Filename_Source])
+        continue
+    end
+    
     Filename_Cuts = replace(Filename_Source, Source_Tag, 'Cutting_artndxn');
     Filename_Destination = replace(Filename_Source, Source_Tag, 'Welch');
 
@@ -104,7 +110,7 @@ for Indx_F = 1:numel(Files)
         ShortEEG = pop_reref(ShortEEG, []);
 
         % Save
-        NewEEG.data(:, round(Starts(Indx_E)*fs):Ends(Indx_E)*fs) = ShortEEG.data;
+        NewEEG.data(:, Starts(Indx_E):Ends(Indx_E)) = ShortEEG.data;
     end
     Chanlocs = EEG.chanlocs;
 
