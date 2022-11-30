@@ -1,5 +1,5 @@
 function P = prepParameters()
-
+% prepare paramters for sleep scoring
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Paths
