@@ -7,12 +7,14 @@ function P = prepParameters()
 Paths = struct();
 
 % raw data
-RawCore = 'G:\LSM\Data\';
+RawCore = 'D:\LSM\Data\';
 Paths.Datasets = fullfile(RawCore, 'Raw');
 
 % where to put preprocessed data
 PrepCore = RawCore;
-Paths.Preprocessed = fullfile(PrepCore, 'Sleep', 'Preprocessed');
+
+Paths.Preprocessed = fullfile(PrepCore, 'Preprocessed');
+Paths.Core = PrepCore;
 
 % where current functions are
 Paths.Analysis = mfilename('fullpath');
@@ -32,7 +34,7 @@ P.Paths = Paths;
 RawFolders = struct();
 
 RawFolders.Template = 'PXX';
-RawFolders.Ignore = {'CSVs', 'other', 'Lazy', 'P00'};
+RawFolders.Ignore = {'CSVs', 'other', 'Lazy', 'P00', 'Applicants'};
 
 [RawFolders.Subfolders, RawFolders.Datasets] = AllFolderPaths(Paths.Datasets, ...
     RawFolders.Template, false, RawFolders.Ignore);

@@ -9,7 +9,7 @@ close all
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Tasks = {'Sleep'};
+Tasks = {'Standing'};
 
 Refresh = true;
 
@@ -17,7 +17,15 @@ Refresh = true;
 P = prepParameters();
 
 Paths = P.Paths;
-RawFolders = P.RawFolders;
+Folders = P.RawFolders;
+
+% Scoring: has special script for running this
+Parameters.fs = 128;
+Parameters.SpChannel = 6;
+Parameters.lp = 40; % low pass filter
+Parameters.hp = .5; % high pass filter
+Parameters.hp_stopband = .2; % high pass filter gradual roll-off
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -26,7 +34,7 @@ Folders.Subfolders(~contains(Folders.Subfolders, Tasks)) = [];
 Folders.Subfolders(~contains(Folders.Subfolders, 'EEG')) = [];
 
 
-parfor Indx_D = 1:size(Folders.Datasets,1) % loop through participants
+for Indx_D = 1:size(Folders.Datasets,1) % loop through participants
     for Indx_F = 1:size(Folders.Subfolders, 1) % loop through all subfolders
         
         %%%%%%%%%%%%%%%%%%%%%%%%
@@ -63,7 +71,7 @@ parfor Indx_D = 1:size(Folders.Datasets,1) % loop through participants
         Filename_SET = Content(SET, :);
         
         % set up destination location
-        Destination = fullfile(Paths.Preprocessed, 'Scoring', Task);
+        Destination = fullfile(Paths.Core, 'Scoring', Task);
         Filename_Core = join([Folders.Datasets{Indx_D}, Levels(:)'], '_');
         Filename_Core = Filename_Core{1};
         
@@ -97,7 +105,7 @@ parfor Indx_D = 1:size(Folders.Datasets,1) % loop through participants
         ScoringData = RereferenceScoring(EEG.data); % Only takes the data matrix
         
         %%% Create delta power (sp1) and vigilance index (sp2) spectrums
-        [sp1, sp2] = SpectrumScoring(ScoringData(Parameters(5).SpChannel, :), Parameters(5).fs);
+        [sp1, sp2] = SpectrumScoring(ScoringData(Parameters.SpChannel, :), Parameters.fs);
         
         %%% Save
         Filename_Short = [Folders.Datasets{Indx_D}, '_', num2str(Indx_F)];
