@@ -14,12 +14,15 @@ Participants = P.Participants;
 Night = 'Baseline';
 Stages = [-1 -2 -3 1]; % NREM1, NREM2, NREM3, REM
 Tasks = {'Fixation', 'Standing', 'Game'};
+Sessions = {'BaselinePre', 'BaselinePre', 'Baseline'};
 ChLabels = {'Front', 'Center', 'Back'};
 
 StageLabels = {'NREM1', 'NREM2', 'NREM3', 'REM', 'Wake (eyes open)', 'Wake (eyes closed)', 'Game'};
 
+load('Keep.mat', 'Keep')
+
 % load data
-AllPower = nan(numel(Participants), 7, 122, 513);
+AllPower = nan(numel(Participants), 7, 119, 513);
 
 for Indx_P = 1:numel(Participants)
 
@@ -31,18 +34,19 @@ for Indx_P = 1:numel(Participants)
         warning(['Missing ', Filename])
     else
         load(fullfile(Source, Filename), 'Power', 'Freqs', 'Chanlocs', 'visnum')
+        KeepChannels = labels2indexes(Keep, Chanlocs);
 
         % average power for each stage
         for Indx_S = 1:numel(Stages)
             Epochs =  find(ismember(visnum, Stages(Indx_S)));
-            AllPower(Indx_P, Indx_S, :, :) = squeeze(mean(Power(:, Epochs, :), 2, 'omitnan'));
+            AllPower(Indx_P, Indx_S, :, :) = squeeze(mean(Power(KeepChannels, Epochs, :), 2, 'omitnan'));
         end
     end
 
     % wake
     for Indx_T = 1:numel(Tasks)
-        Source = fullfile(Paths.Data, 'EEG', 'Unlocked', 'window4s_4m', 'Sleep');
-        Filename = strjoin({Participants{Indx_P}, 'Sleep', Night, 'Welch.mat'}, '_');
+        Source = fullfile(Paths.Data, 'EEG', 'Unlocked', 'window4s_duration4m', Tasks{Indx_T});
+        Filename = strjoin({Participants{Indx_P},  Tasks{Indx_T}, Sessions{Indx_T}, 'Welch.mat'}, '_');
 
         if ~exist(fullfile(Source, Filename), 'file')
             warning(['Missing ', Filename])
@@ -50,9 +54,11 @@ for Indx_P = 1:numel(Participants)
         end
 
         load(fullfile(Source, Filename), 'Power', 'Freqs', 'Chanlocs')
-        AllPower(Indx_P, Indx_T+numel(Stages), :, :) = Power;
+        KeepChannels = labels2indexes(Keep, Chanlocs);
+        AllPower(Indx_P, Indx_T+numel(Stages), :, :) = Power(KeepChannels, :);
 
     end
+    disp(['Finished ', Participants{Indx_P}])
 end
 
 
