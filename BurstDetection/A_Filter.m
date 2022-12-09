@@ -5,7 +5,7 @@ clear
 clc
 close all
 
-Info = analysisParameters();
+Info = burstParameters();
 Paths = Info.Paths;
 Bands = Info.Bands;
 Task = 'Sleep';
@@ -53,7 +53,7 @@ for Indx_F = 1:numel(Content)
         FiltEEG.Band = Band;
 
         % save
-        save(fullfile(Destination, BandLabels{Indx_B}, Filename_Destination), 'FiltEEG')
+        save(fullfile(Destination, BandLabels{Indx_B}, Filename_Destination), 'FiltEEG', '-v7.3')
         disp(['Finished ', Filename_Destination, ' ', BandLabels{Indx_B}])
     end
 end
