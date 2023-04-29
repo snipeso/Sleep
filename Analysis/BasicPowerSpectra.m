@@ -137,6 +137,7 @@ BL_Indx = 1;
 yLim = [-4 6];
 
 
+
 Colors = [flip(getColors([1 3], '', 'blue')); getColors(1, '', 'green'); getColors([1, 2], '', 'red'); getColors(1, '', 'yellow')];
 
 figure('Units','normalized','Position',[0 0 1 .5])
@@ -186,17 +187,23 @@ saveFig(strjoin({TitleTag, 'AllSpectra', 'zscored'}, '_'), Results, PlotProps)
 
 
 %% official figure
+PlotProps = P.Manuscript;
+PlotProps.Line.Width = 5;
 
-StageLabels = {'NREM1', 'NREM2', 'NREM3', 'REM', 'Wake (eyes open)', 'Wake (EC)', 'Game'};
-Plot = [6, 7, 1 2 3 4];
+StageLabels = {'NREM 1', 'NREM 2', 'NREM 3', 'REM', 'Wake (EO)', 'Wake (EC)', 'Game'};
+Plot = [1:3];
+
+TitleTag2 = 'NREM_nolog';
 
 Grid = [1 3];
 BL_Indx = 1;
 % yLim = [-1.2, 4];
 yLim = [-4.5 6.5];
-xLog = true;
+% yLim = [-4 4];
+xLog = false;
 
-Colors = [getColors(1, '', 'red'); getColors(1, '', 'orange'); flip(getColors([1 3], '', 'blue')); getColors(1, '', 'green')];
+Colors = [flip(getColors([1 3], '', 'blue')); getColors(1, '', 'green'); flip(getColors([1 2], '', 'red')); getColors(1, '', 'orange')];
+Colors = Colors(Plot, :);
 
 figure('Units','normalized','Position',[0 0 .4 .26])
 for Indx_Ch = 1:3
@@ -217,7 +224,7 @@ for Indx_Ch = 1:3
     axis square
 end
 
-saveFig(strjoin({TitleTag, 'SleepSpectra', 'raw'}, '_'), Results, PlotProps)
+saveFig(strjoin({TitleTag, 'SleepSpectra', 'raw', TitleTag2}, '_'), Results, PlotProps)
 
 
 %%
