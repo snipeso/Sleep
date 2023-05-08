@@ -13,7 +13,7 @@ PlotProps = P.Manuscript;
 Participants = P.Participants;
 TitleTag = 'SimpleSpectra';
 Night = 'Baseline';
-Stages = [-1 -2 -3 1]; % NREM1, NREM2, NREM3, REM
+Stages = [-1 -2 -3 0]; % NREM1, NREM2, NREM3, REM
 Tasks = {'Fixation', 'Standing', 'Game'};
 Sessions = {'BaselinePre', 'BaselinePre', 'Baseline'};
 ChLabels = {'Front', 'Center', 'Back'};
@@ -188,24 +188,28 @@ saveFig(strjoin({TitleTag, 'AllSpectra', 'zscored'}, '_'), Results, PlotProps)
 
 %% official figure
 PlotProps = P.Manuscript;
-PlotProps.Line.Width = 5;
+% PlotProps.Line.Width = 5;
+PlotProps.Line.Width = 2;
 
 StageLabels = {'NREM 1', 'NREM 2', 'NREM 3', 'REM', 'Wake (EO)', 'Wake (EC)', 'Game'};
-Plot = [1:3];
+Plot = [1 4 5];
+Plot = [6, 7, 1:4];
 
-TitleTag2 = 'NREM_nolog';
+TitleTag2 = 'All';
 
 Grid = [1 3];
 BL_Indx = 1;
 % yLim = [-1.2, 4];
 yLim = [-4.5 6.5];
 % yLim = [-4 4];
-xLog = false;
+xLog = true;
 
-Colors = [flip(getColors([1 3], '', 'blue')); getColors(1, '', 'green'); flip(getColors([1 2], '', 'red')); getColors(1, '', 'orange')];
+Colors = [flip(getColors([1 3], '', 'blue')); getColors(1, '', 'green'); ...
+    flip(getColors([1 2], '', 'red')); getColors(1, '', 'orange')];
 Colors = Colors(Plot, :);
 
-figure('Units','normalized','Position',[0 0 .4 .26])
+% figure('Units','normalized','Position',[0 0 .4 .26])
+figure('Units','normalized','Position',[0 0 .5 .32])
 for Indx_Ch = 1:3
     A = subfigure([], Grid, [1, Indx_Ch], [], true, ...
         PlotProps.Indexes.Letters{Indx_Ch}, PlotProps);
@@ -224,6 +228,7 @@ for Indx_Ch = 1:3
     axis square
 end
 
+Results = 'C:\Users\colas\Dropbox\Research\Publications and Presentations\Sleep\Thesis\Figures\MATLAB';
 saveFig(strjoin({TitleTag, 'SleepSpectra', 'raw', TitleTag2}, '_'), Results, PlotProps)
 
 
