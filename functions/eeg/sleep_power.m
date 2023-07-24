@@ -7,40 +7,50 @@ function [Power, Freqs] = sleep_power(EEG, artndxn, scoringlen, WelchWindow, Ove
 % WelchWindow (seconds) is duration of window over which to calculate FFT
 % Overlap (0-1) is amount of overlap of welchwindow.
 
-Starts = 1:fs*scoringlen:size(EEG.data, 2);
-Ends = Starts+fs*scoringlen-1;
+fs = EEG.srate;
+
+Starts = round(1:fs*scoringlen:size(EEG.data, 2));
+Ends = round(Starts+fs*scoringlen-1);
+
+if Ends(end) > size(EEG.data, 2) && Ends(end-1) < size(EEG.data, 2)
+    Ends(end) = [];
+    Starts(end) = [];
+end
+
+[nChannels, nEpochs] = size(artndxn);
 
 if numel(Starts) ~= size(artndxn, 2)
     warning('mismatch between EEG size and artefact matrix')
+    New = ones(nChannels, numel(Starts));
+    if size(artndxn, 2) < numel(Starts)
+        New(1:nChannels, 1:size(artndxn, 2)) = artndxn;
+    else
+        New = artndxn(:, 1:numel(Starts));
+    end
+    artndxn = New;
 end
 
-Power = nan(size(artndxn, 1), size(artndxn, 2), FinalFreqs);
+% just to get frequencies
+[~, Freqs] = quickPower(EEG.data(1, 1:Ends(1)), fs, WelchWindow, Overlap);
+Power = nan(nChannels, nEpochs, numel(Freqs));
+
+% parfor Indx_E = 1:size(artndxn, 2)
 for Indx_E = 1:size(artndxn, 2)
-    KeepCh = artndxn(:, Indx_E);
+    KeepCh = find(artndxn(:, Indx_E));
 
     % skip if all nans
-    if ~any(KeepCh==1)
+    if numel(KeepCh)==0
         continue
     end
 
-    ShortEEG = pop_select(EEG, 'point', [Starts(Indx_E), Ends(Indx_E)]);
+    EEG_internal = EEG;
 
-    % remove bad channels/timepoints for epoch
-    ShortEEG = pop_select(ShortEEG, 'channel', find(KeepCh));
+    Data = EEG_internal.data(KeepCh, Starts(Indx_E):Ends(Indx_E));
 
-    % interpolate missing data
-    ShortEEG = pop_interp(ShortEEG, EEG.chanlocs);
-
-    % rereference to average
-    ShortEEG = pop_reref(ShortEEG, []);
 
     % FFT
-    if Indx_E == 1 % TEMP because I'm stupid
-        [Pwr, Freqs] = quickPower(ShortEEG.data, fs, WelchWindow, Overlap);
-        Power = nan(size(artndxn, 1), size(artndxn, 2), FinalFreqs);
-        Power(:, Indx_E, :) = Pwr;
-    else
-        [Power(:, Indx_E, :), ~] = quickPower(ShortEEG.data, fs, WelchWindow, Overlap);
-    end
+    Pwr = nan(nChannels, numel(Freqs));
+    [Pwr(KeepCh, :), ~] = quick_power(Data, fs, WelchWindow, Overlap);
+    Power(:, Indx_E, :) = Pwr;
 end
 

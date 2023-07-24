@@ -16,8 +16,10 @@ Overlap = 0.75;
 
 Destination = fullfile(Destination, ['window', num2str(WelchWindow), 's_full'], 'Sleep');
 
+Channels = [24 36 70 83 104 124]; % TEMP, fixing previous omission
+
 BadChannel_Threshold = .33; % proportion of bad epochs before it gets counted as a bad channel
-BadWindow_Threshold = .5; % proportion of bad channels before its counted as a bad window
+BadWindow_Threshold = .2; % proportion of bad channels before its counted as a bad window
 
 if ~exist(Destination, 'dir')
     mkdir(Destination)
@@ -39,7 +41,8 @@ for Indx_F = 1:numel(Files)
     Chanlocs = EEG.chanlocs;
 
     % ssign artefact as either bad channel or bad epoch
-    Old = artndxn;
+    Whole = artndxn;
+    artndxn = artndxn(Channels, :);
     artndxn = assign_bad_channels_epochs(artndxn, BadChannel_Threshold, BadWindow_Threshold);
 
     % loop through epochs, calculate power
@@ -53,5 +56,5 @@ for Indx_F = 1:numel(Files)
 
     % save TODO parsave
     save(fullfile(Destination, Filename), 'Power', 'fs', 'Chanlocs', 'Freqs', 'visnum')
-
+    disp(['Finished ', Filename])
 end

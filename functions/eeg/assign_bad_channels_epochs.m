@@ -19,7 +19,7 @@ if exist("EdgeChannels", "var") && ~iempty(EdgeChannels)
     Main(Edges, :) = [];
 else
 
-    Holes = zeros(size(artndxn, 2), 1);
+    Holes = zeros(1, size(artndxn, 2));
 end
 
 BadWindows = sum(Main==0)./size(Main, 1) >=BadWindow_Threshold;
