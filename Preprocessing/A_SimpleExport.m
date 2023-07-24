@@ -31,6 +31,8 @@ Refresh = false; % redo files that are already in destination folder
 Folders.Subfolders(~contains(Folders.Subfolders, Task)) = [];
 Folders.Subfolders(~contains(Folders.Subfolders, 'EEG')) = [];
 
+[Channels, Order] = sort(Channels); % make sure in order, to avoid problems
+Labels = Labels(Order);
 
 for Indx_D = 1:size(Folders.Datasets,1) % loop through participants
     for Indx_F = 1:size(Folders.Subfolders, 1) % loop through all subfolders
@@ -129,6 +131,7 @@ for Indx_D = 1:size(Folders.Datasets,1) % loop through participants
         NoisePath = fullfile(Paths.Core, 'Outliers', Task, [Filename_Core{1}, '_Cutting_artndxn.mat']);
         try
         load(NoisePath, 'artndxn', 'scoringlen', 'visnum');
+        artndxn = artndxn(Channels, :);
         catch
             continue
         end
