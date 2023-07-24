@@ -5,7 +5,7 @@ clear
 clc
 close all
 
-P = analysisParameters();
+P = sleepAnalysisParameters();
 
 Paths = P.Paths;
 PlotProps = P.Manuscript;
@@ -13,12 +13,12 @@ PlotProps = P.Manuscript;
 Participants = P.Participants;
 TitleTag = 'SimpleSpectra';
 Night = 'Baseline';
-Stages = [-1 -2 -3 1]; % NREM1, NREM2, NREM3, REM
+Stages = [-1 -2 -3 0]; % NREM1, NREM2, NREM3, REM
 Tasks = {'Fixation', 'Standing', 'Game'};
 Sessions = {'BaselinePre', 'BaselinePre', 'Baseline'};
 ChLabels = {'Front', 'Center', 'Back'};
 
-Results = 'E:\Data\Results\Sleep';
+Results = 'G:\Data\Results\Sleep';
 StageLabels = {'NREM1', 'NREM2', 'NREM3', 'REM', 'Wake (eyes open)', 'Wake (eyes closed)', 'Game'};
 
 load('Keep.mat', 'Keep')
@@ -137,6 +137,7 @@ BL_Indx = 1;
 yLim = [-4 6];
 
 
+
 Colors = [flip(getColors([1 3], '', 'blue')); getColors(1, '', 'green'); getColors([1, 2], '', 'red'); getColors(1, '', 'yellow')];
 
 figure('Units','normalized','Position',[0 0 1 .5])
@@ -186,23 +187,34 @@ saveFig(strjoin({TitleTag, 'AllSpectra', 'zscored'}, '_'), Results, PlotProps)
 
 
 %% official figure
+PlotProps = P.Manuscript;
+% PlotProps.Line.Width = 5;
+PlotProps.Line.Width = 2;
 
-StageLabels = {'NREM1', 'NREM2', 'NREM3', 'REM', 'Wake (eyes open)', 'Wake', 'Game'};
+StageLabels = {'NREM 1', 'NREM 2', 'NREM 3', 'REM', 'Wake (EO)', 'Wake (EC)', 'Game'};
+Plot = [1 4 5];
+Plot = [6, 7, 1:4];
 
+TitleTag2 = 'All';
 
 Grid = [1 3];
 BL_Indx = 1;
 % yLim = [-1.2, 4];
-yLim = [-4 7];
+yLim = [-4.5 6.5];
+% yLim = [-4 4];
+xLog = true;
 
-Colors = [getColors(1, '', 'red'); flip(getColors([1 3], '', 'blue')); getColors(1, '', 'yellow')];
+Colors = [flip(getColors([1 3], '', 'blue')); getColors(1, '', 'green'); ...
+    flip(getColors([1 2], '', 'red')); getColors(1, '', 'orange')];
+Colors = Colors(Plot, :);
 
-figure('Units','normalized','Position',[0 0 .5 .35])
+% figure('Units','normalized','Position',[0 0 .4 .26])
+figure('Units','normalized','Position',[0 0 .5 .32])
 for Indx_Ch = 1:3
     A = subfigure([], Grid, [1, Indx_Ch], [], true, ...
         PlotProps.Indexes.Letters{Indx_Ch}, PlotProps);
-    Data = log(squeeze(raw_chData(:, [6, 1 2 3 4], Indx_Ch, :)));
-    spectrumDiff(Data, Freqs, BL_Indx, StageLabels([6, 1 2 3 4]), Colors, xLog, PlotProps, P.StatsP, P.Labels);
+    Data = log(squeeze(raw_chData(:, Plot, Indx_Ch, :)));
+    spectrumDiff(Data, Freqs, BL_Indx, StageLabels(Plot), Colors, xLog, PlotProps, [], P.Labels);
     title([ChLabels{Indx_Ch}])
     ylim(yLim)
     if Indx_Ch>1
@@ -210,30 +222,33 @@ for Indx_Ch = 1:3
         ylabel('')
     else
          set(legend, 'ItemTokenSize', [10 10])
-         ylabel('log power')
+         ylabel('Power (log)')
     end
+    xlabel('Frequency (log)')
+    axis square
 end
 
-saveFig(strjoin({TitleTag, 'SleepSpectra', 'raw'}, '_'), Results, PlotProps)
+Results = 'C:\Users\colas\Dropbox\Research\Publications and Presentations\Sleep\Thesis\Figures\MATLAB';
+saveFig(strjoin({TitleTag, 'SleepSpectra', 'raw', TitleTag2}, '_'), Results, PlotProps)
 
 
 %%
 StageLabels = {'NREM1', 'NREM2', 'NREM3', 'REM', 'Wake (eyes open)', 'Wake', 'Game'};
-
+Plot = [6, 1 2 3 4 7];
 
 Grid = [1 3];
 BL_Indx = 1;
 yLim = [-1.2, 5];
-% yLim = [-4 7];
+% yLim = [-5 7];
 
-Colors = [getColors(1, '', 'red'); flip(getColors([1 3], '', 'blue')); getColors(1, '', 'yellow')];
+Colors = [getColors(1, '', 'red'); flip(getColors([1 3], '', 'blue')); getColors(1, '', 'yellow'); getColors(1, '', 'green')];
 
 figure('Units','normalized','Position',[0 0 .55 .35])
 for Indx_Ch = 1:3
     A = subfigure([], Grid, [1, Indx_Ch], [], true, ...
         PlotProps.Indexes.Letters{Indx_Ch}, PlotProps);
-    Data = squeeze(chData(:, [6, 1 2 3 4], Indx_Ch, :));
-    spectrumDiff(Data, Freqs, BL_Indx, StageLabels([6, 1 2 3 4]), Colors, xLog, PlotProps, P.StatsP, P.Labels);
+    Data = squeeze(chData(:, Plot, Indx_Ch, :));
+    spectrumDiff(Data, Freqs, BL_Indx, StageLabels(Plot), Colors, xLog, PlotProps, P.StatsP, P.Labels);
     title([ChLabels{Indx_Ch}])
     ylim(yLim)
     if Indx_Ch>1
