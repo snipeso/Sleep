@@ -29,8 +29,8 @@ P.Participants = {'P01', 'P02', 'P03', 'P04', 'P05', 'P06', 'P07', 'P08', ...
 P.Nights = {'Baseline', 'NightPre', 'NightPost'};
 
 
-Labels.logBands = [0.1 0.5 1 2 4 8 16 32 64]; % x markers for plot on log scale
-Labels.Bands = [1 4 8 15 25 35 40]; % normal scale
+Labels.logBands = [0.1 0.5 1 2 4 8 16 32 46]; % x markers for plot on log scale
+Labels.Bands = [1 4 8 15 25 35 40 46]; % normal scale
 Labels.FreqLimits = [0.1 40];
 Labels.zPower = 'PSD z-scored';
 Labels.Power = 'PSD Amplitude (\muV^2/Hz)';
@@ -83,7 +83,7 @@ Paths.Paper = 'C:\Users\colas\Dropbox\Research\Publications and Presentations\Sl
 % Paths.Powerpoint = 'C:\Users\colas\Dropbox\Research\Projects\HuberSleepLab\LSM\Repeat Figures\MatlabFigures';
 % Paths.PaperStats =  'C:\Users\colas\Dropbox\Research\Publications and Presentations\Sleep\Paper2\Stats';
 Paths.Scoring = fullfile(Core, 'Scoring');
-Paths.Results = fullfile(Core, 'Results\Lapses-Causes');
+Paths.Results = fullfile(Core, 'Results\Sleep');
 
 if ~exist(Paths.Results, 'dir')
     mkdir(Paths.Results)
