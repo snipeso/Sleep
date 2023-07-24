@@ -26,34 +26,12 @@ P.Parameters.Radius = 4/6; % exclude outer third of trials
 P.Participants = {'P01', 'P02', 'P03', 'P04', 'P05', 'P06', 'P07', 'P08', ...
     'P09', 'P10', 'P11', 'P12', 'P13', 'P14', 'P15', 'P16', 'P17', 'P19'};
 
-P.AllTasks = {'Match2Sample', 'LAT', 'PVT', 'SpFT', 'Game', 'Music'};
-P.TaskLabels = {'STM', 'LAT', 'PVT', 'Speech', 'Game', 'Music'};
-
 P.Nights = {'Baseline', 'NightPre', 'NightPost'};
 
-Labels.Sessions.IDs = {'BaselineBeam', 'MainPre', 'Session1Beam', 'Session2Beam1', 'Session2Beam2', 'Session2Beam3', 'MainPost'};
-Labels.Sessions.Labels = {'BL', 'Pre', 'SD1', 'SD2.1', 'SD2.2', 'SD2.3', 'Post'};
 
-SessionBlocks.BL = {'BaselineBeam',  'MainPre', 'MainPost'};
-SessionBlocks.SD = { 'Session2Beam1', 'Session2Beam2', 'Session2Beam3'};
-
-P.Sessions = [SessionBlocks.BL, SessionBlocks.SD];
-
-SessionBlocks.BL = {'BaselineBeam',  'MainPre', 'MainPost'};
-SessionBlocks.SD = { 'Session2Beam1', 'Session2Beam2', 'Session2Beam3'};
-
-P.Sessions_PVT = {'BaselineBeam', 'Session2Beam'};
-
-
-P.SessionBlocks = SessionBlocks;
-
-Labels.Tally = {'Lapses', 'Late', 'Correct'};
-Labels.EyeType = [0 1];
-
-Labels.Task = 'LAT';
-Labels.logBands = [1 2 4 8 16 32]; % x markers for plot on log scale
+Labels.logBands = [0.1 0.5 1 2 4 8 16 32 64]; % x markers for plot on log scale
 Labels.Bands = [1 4 8 15 25 35 40]; % normal scale
-Labels.FreqLimits = [1 40];
+Labels.FreqLimits = [0.1 40];
 Labels.zPower = 'PSD z-scored';
 Labels.Power = 'PSD Amplitude (\muV^2/Hz)';
 Labels.Frequency = 'Frequency (Hz)';
@@ -66,25 +44,7 @@ Labels.Correct = '% Correct';
 Labels.RT = 'RT (s)';
 P.Labels = Labels;
 
-Triggers.SyncEyes = 'S192';
-Triggers.Start = 'S  1';
-Triggers.End = 'S  2';
-Triggers.Stim = 'S  3';
-Triggers.Resp = 'S  4';
-Triggers.FA = 'S  5';
-Triggers.StartBlank = 'S  6';
-Triggers.EndBlank = 'S  7';
-Triggers.Alarm = 'S  8';
-Triggers.LeftBlock = 'S 10';
-Triggers.RightBlock = 'S 11';
-Tones = 'S 12';
 
-Triggers.Extras = {'boundary', Triggers.Start, Triggers.End, Triggers.Resp, ...
-    Triggers.FA, Triggers.StartBlank, Triggers.EndBlank, Triggers.Alarm, ...
-    Triggers.LeftBlock, Triggers.RightBlock, Tones};
-
-
-P.Triggers = Triggers;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Locations
 
@@ -139,11 +99,8 @@ Paths.Analysis = fullfile(extractBefore(Paths.Analysis, '\Analysis\'));
 addpath(fullfile(Paths.Analysis, 'functions','general'))
 addpath(fullfile(Paths.Analysis, 'functions','eeg'))
 addpath(fullfile(Paths.Analysis, 'functions','plots'))
-addpath(fullfile(Paths.Analysis, 'functions','tasks'))
-addpath(fullfile(Paths.Analysis, 'functions','eyes'))
 addpath(fullfile(Paths.Analysis, 'functions','stats'))
 addpath(fullfile(Paths.Analysis, 'functions','external'))
-addExternalFunctions
 
 P.Paths = Paths;
 

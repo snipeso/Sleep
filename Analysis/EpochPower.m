@@ -62,62 +62,14 @@ for Indx_F = 1:numel(Files)
     artndxn(RemoveChannels, :) = [];
 
     fs = EEG.srate;
+        Chanlocs = EEG.chanlocs;
 
-    % bad channels
-    BadEpochs = sum(artndxn==0, 2, 'omitnan');
-    badchans = BadEpochs./size(artndxn, 2) >= BadChannel_Threshold;
-
-    artndxn(badchans, :) = 0;
-
-    % bad epochs
-    Edges =  labels2indexes(EdgeChannels, EEG.chanlocs);
-    Holes = findHoles(artndxn, EEG.chanlocs, Edges); % epochs where there are no adjacent electrodes
-    
-    Main = artndxn;
-    Main(Edges, :) = [];
-    BadWindows = sum(Main==0)./size(Main, 1) >=BadWindow_Threshold;
-
-
-    % set to nan holes so they're not counted in BadSnippets
-    artndxn(:, Holes | BadWindows) = 0;
+   artndxn = assign_bad_channels_epochs(artndxn, BadChannel_Threshold, BadWindow_Threshold, EdgeChannels);
 
 
     % loop through epochs, calculate power
-    Starts = 1:fs*scoringlen:size(EEG.data, 2);
-    Ends = Starts+fs*scoringlen-1;
+   [Power, Freqs] = sleep_power(EEG, artndxn, scoringlen, WelchWindow, Overlap);
 
-    Power = nan(size(artndxn, 1), size(artndxn, 2), FinalFreqs);
-    for Indx_E = 1:size(artndxn, 2)
-        KeepCh = artndxn(:, Indx_E);
-
-        % skip if all nans
-        if ~any(KeepCh==1)
-            continue
-        end
-
-        ShortEEG = pop_select(EEG, 'point', [Starts(Indx_E), Ends(Indx_E)]);
-
-
-        % remove bad channels/timepoints for epoch
-        ShortEEG = pop_select(ShortEEG, 'channel', find(KeepCh));
-
-        % interpolate missing data
-        ShortEEG = pop_interp(ShortEEG, EEG.chanlocs);
-
-        % rereference to average
-        ShortEEG = pop_reref(ShortEEG, []);
-
-        % FFT
-        nfft = 2^nextpow2(WelchWindow*fs);
-        noverlap = round(nfft*Overlap);
-        window = hanning(nfft);
-        [P, Freqs] = pwelch(ShortEEG.data', window, noverlap, nfft, fs);
-        P = P';
-        Freqs = Freqs';
-        
-        Power(:, Indx_E, :) = P;
-    end
-    Chanlocs = EEG.chanlocs;
 
     if all(isnan(Power(:)))
         warning(['no data left in ', Filename_Destination])
