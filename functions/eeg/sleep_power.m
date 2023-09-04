@@ -31,7 +31,7 @@ if numel(Starts) ~= size(artndxn, 2)
 end
 
 % just to get frequencies
-[~, Freqs] = quickPower(EEG.data(1, 1:Ends(1)), fs, WelchWindow, Overlap);
+[~, Freqs] = quick_power(EEG.data(1, 1:Ends(1)), fs, WelchWindow, Overlap);
 Power = nan(nChannels, nEpochs, numel(Freqs));
 
 % parfor Indx_E = 1:size(artndxn, 2)
